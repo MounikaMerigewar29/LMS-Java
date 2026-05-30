@@ -24,7 +24,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
     private JButton btnReturnBook;
     private JButton btnViewBooks;
     private JButton btnLogout;
-
+    private JButton btnAddMember;
     // Title Label
     private JLabel lblTitle;
 
@@ -55,7 +55,7 @@ public class AdminDashboard extends JFrame implements ActionListener {
         btnReturnBook = new JButton("Return Book");
         btnViewBooks = new JButton("View Books");
         btnLogout = new JButton("Logout");
-
+        btnAddMember=new JButton("Add Member");
         // Set Font
         Font buttonFont = new Font("Arial", Font.PLAIN, 18);
 
@@ -71,17 +71,33 @@ public class AdminDashboard extends JFrame implements ActionListener {
         btnReturnBook.addActionListener(this);
         btnViewBooks.addActionListener(this);
         btnLogout.addActionListener(this);
-
+        btnAddMember.addActionListener(this);
+        
         // Add Buttons to Panel
         panel.add(btnAddBook);
         panel.add(btnIssueBook);
         panel.add(btnReturnBook);
         panel.add(btnViewBooks);
         panel.add(btnLogout);
+        panel.add(btnAddMember);
 
         // Add Panel to Frame
         add(panel, BorderLayout.CENTER);
+     // Inside your Dashboard constructor or initialize method:
+        btnViewBooks.addActionListener(e -> {
+            new ViewBooksFrame().setVisible(true); // This opens the window!
+        });
 
+        btnIssueBook.addActionListener(e -> {
+            new IssueBookFrame().setVisible(true);
+        });
+
+        btnReturnBook.addActionListener(e -> {
+            new ReturnBookFrame().setVisible(true);
+        });
+        btnAddMember.addActionListener(e -> {
+            new AddMemberFrame().setVisible(true);
+        });
         setVisible(true);
     }
 

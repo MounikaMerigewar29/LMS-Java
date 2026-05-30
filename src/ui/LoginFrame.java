@@ -11,6 +11,8 @@
 
 package ui;
 
+import dao.MemberDAO;
+import model.Member;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -36,7 +38,6 @@ public class LoginFrame extends JFrame implements ActionListener {
     private JButton btnClear;
 
     public LoginFrame() {
-
         // Frame Settings
         setTitle("Library Management System - Login");
         setSize(450, 350);
@@ -45,16 +46,12 @@ public class LoginFrame extends JFrame implements ActionListener {
         setLayout(new BorderLayout());
 
         // Title Label
-        lblTitle = new JLabel("Library Management System",
-                JLabel.CENTER);
-
+        lblTitle = new JLabel("Library Management System", JLabel.CENTER);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
-
         add(lblTitle, BorderLayout.NORTH);
 
         // Form Panel
         JPanel panel = new JPanel();
-
         panel.setLayout(new GridLayout(5, 2, 10, 10));
 
         // Initialize Labels
@@ -67,8 +64,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         txtPassword = new JPasswordField();
 
         // Role Options
-        String[] roles = {"Admin", "Member"};
-
+        String[] roles = {"Admin", "Member", "Student", "Faculty"};
         comboRole = new JComboBox<>(roles);
 
         // Initialize Buttons
@@ -82,13 +78,10 @@ public class LoginFrame extends JFrame implements ActionListener {
         // Add Components
         panel.add(lblUsername);
         panel.add(txtUsername);
-
         panel.add(lblPassword);
         panel.add(txtPassword);
-
         panel.add(lblRole);
         panel.add(comboRole);
-
         panel.add(btnLogin);
         panel.add(btnClear);
 
@@ -104,66 +97,51 @@ public class LoginFrame extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         // Login Button
         if (e.getSource() == btnLogin) {
-
-            String username = txtUsername.getText();
-            String password = String.valueOf(txtPassword.getPassword());
+            String username = txtUsername.getText().trim();
+            String password = String.valueOf(txtPassword.getPassword()).trim();
             String role = comboRole.getSelectedItem().toString();
 
             // Validation
             if (username.isEmpty() || password.isEmpty()) {
-
-                JOptionPane.showMessageDialog(this,
-                        "Please enter username and password!");
-
+                JOptionPane.showMessageDialog(this, "Please enter username and password!");
                 return;
             }
 
-            // Demo Login Logic
+            // 1. Hardcoded Admin Login Logic
             if (role.equals("Admin")) {
-
-                if (username.equals("admin")
-                        && password.equals("admin123")) {
-
-                    JOptionPane.showMessageDialog(this,
-                            "Admin Login Successful!");
-
+                if (username.equals("admin") && password.equals("admin123")) {
+                    JOptionPane.showMessageDialog(this, "Admin Login Successful!");
                     dispose();
-
                     new AdminDashboard();
-
                 } else {
-
-                    JOptionPane.showMessageDialog(this,
-                            "Invalid Admin Credentials!");
+                    JOptionPane.showMessageDialog(this, "Invalid Admin Credentials!");
                 }
-            }
+            } 
+            // 2. DYNAMIC Database Login Logic for Members/Students/Faculty
+            else {
+                MemberDAO memberDAO = new MemberDAO();
+                
+                // Fetch the member records directly from MySQL using the username (mem_id)
+                Member member = memberDAO.getMemberById(username);
 
-            else if (role.equals("Member")) {
-
-                if (username.equals("member")
-                        && password.equals("member123")) {
-
-                    JOptionPane.showMessageDialog(this,
-                            "Member Login Successful!");
-
+                // Verify the member exists, the password matches, and they belong to a user role
+                if (member != null && member.getPassword().equals(password)) {
+                    
+                    JOptionPane.showMessageDialog(this, role + " Login Successful! Welcome " + member.getName());
                     dispose();
-
-                    new MemberDashboard();
-
+                    
+                    // Route them straight into the student/member dashboard panel
+                    new MemberDashboard(member);
+                    
                 } else {
-
-                    JOptionPane.showMessageDialog(this,
-                            "Invalid Member Credentials!");
+                    JOptionPane.showMessageDialog(this, "Invalid " + role + " Credentials!");
                 }
             }
         }
-
         // Clear Button
         else if (e.getSource() == btnClear) {
-
             txtUsername.setText("");
             txtPassword.setText("");
             comboRole.setSelectedIndex(0);
